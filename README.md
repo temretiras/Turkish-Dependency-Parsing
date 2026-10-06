@@ -4,6 +4,24 @@
 
 This repository contains the implementation of a Turkish dependency parsing system built on top of the **SuPar second-order TreeCRF parser**. The system utilizes a pre-trained **BERTurk** backbone and evaluates extensions across three Universal Dependencies (UD) treebanks: BOUN, IMST, and PUD.
 
+The full write-up is in [`project_paper.pdf`](project_paper.pdf).
+
+## Repository Contents
+
+| Notebook | What it does |
+| :--- | :--- |
+| [`01_setup.ipynb`](01_setup.ipynb) | Installs dependencies, downloads the three UD Turkish treebanks, verifies splits and builds the FEATS vocabulary |
+| [`02_baseline_final.ipynb`](02_baseline_final.ipynb) | Trains and evaluates the BERTurk + SuPar baseline on BOUN and IMST |
+| [`03_ablation.ipynb`](03_ablation.ipynb) | STEPS-style ablation on BOUN: BiLSTM layer, POS input features, BERTurk vs. XLM-R |
+| [`04_adapters.ipynb`](04_adapters.ipynb) | Houlsby adapters written from scratch in PyTorch, trained jointly on BOUN and IMST with a frozen encoder |
+| [`05a_morph_ud_feats.ipynb`](05a_morph_ud_feats.ipynb) | Morphological feature injection from the UD `FEATS` column (V2) |
+| [`05a_morph_ud_feats_low_Eval.ipynb`](05a_morph_ud_feats_low_Eval.ipynb) | Variant of 05a with a different evaluation setup, kept for reference |
+| [`05b_morph_zemberek.ipynb`](05b_morph_zemberek.ipynb) | V2 extended with Zemberek-NLP morpheme labels (V3) |
+| [`06_final_comparison.ipynb`](06_final_comparison.ipynb) | Master results table, McNemar's tests and per-relation LAS |
+| [`07_combined.ipynb`](07_combined.ipynb) | Follow-up experiment combining A2b with UD FEATS injection |
+
+The notebooks were run on Google Colab with a T4 GPU and expect Google Drive paths for data and checkpoints.
+
 ## Dataset Overview
 Turkish presents severe challenges for dependency parsing due to its highly agglutinative morphology and relatively free word order. This project builds a solid baseline and investigates three independent structural enhancements to optimize labeled dependency performance.
 
@@ -17,7 +35,7 @@ Turkish presents severe challenges for dependency parsing due to its highly aggl
 * **Morphological Feature Injection**: Sums and injects explicitly learned embeddings from the CoNLL-U `FEATS` column (and morpheme tags from Zemberek-NLP) right before the parser's biaffine heads.
 
 ## Model Training & Performance
-Data splits use gold tokenization. Models were optimized using `GridSearchCV` with 5-fold cross-validation.
+All systems are evaluated with gold tokenization, and UAS/LAS come from SuPar's `parser.evaluate()`. The baseline is trained with AdamW and early stopping, using per-treebank learning rates (1e-3 for BOUN, 2e-3 for IMST) and 2e-5 for the BERTurk encoder; the settings of each extension are listed in the paper. Differences between systems are tested with McNemar's test.
 
 ### Test Set Metrics
 
